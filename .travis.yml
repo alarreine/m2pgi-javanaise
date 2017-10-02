@@ -1,7 +1,8 @@
 language: java
 jdk:
   - oraclejdk8
-install: ant compile
+install: true
+script: ant compile
 notifications:
   slack:
     on_success: never

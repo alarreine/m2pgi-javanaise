@@ -33,7 +33,6 @@
 	<!-- dist.jdoc contains the javadoc files of the Javanaise distribution		-->
 	<!-- =======================================================================-->
 	<property name="src" 			 	value="${basedir}/src"/>
-	<property name="test.src" 			value="${basedir}/test"/>
 	<property name="external" 			value="${basedir}/external"/>
 	<property name="dist.lib" 			value="${dist}/lib"/>   
 	<property name="dist.jdoc" 			value="${dist}/jdoc"/>
