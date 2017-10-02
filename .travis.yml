@@ -1,6 +1,7 @@
 language: java
 jdk:
   - oraclejdk8
+install: ant deps
 notifications:
   slack:
     on_success: never
