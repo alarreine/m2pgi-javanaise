@@ -33,10 +33,12 @@
 	<!-- dist.jdoc contains the javadoc files of the Javanaise distribution		-->
 	<!-- =======================================================================-->
 	<property name="src" 			 	value="${basedir}/src"/>
+	<property name="test.src" 			value="${basedir}/test"/>
 	<property name="external" 			value="${basedir}/external"/>
 	<property name="dist.lib" 			value="${dist}/lib"/>   
 	<property name="dist.jdoc" 			value="${dist}/jdoc"/>
-	<property name="test.dir" 			location="test"/>
+	<property name="test.classes" 		value="${dist}/test"/>
+	<property name="test.dir" 			value="${build}/test"/>
 	
 
 	<!--====================================-->
@@ -48,6 +50,10 @@
       <include name="externals/**/*.jar"/>
     </fileset>
   </path>
+
+	<path id="test.classpath">
+		<pathelement location="${test.dir}" />
+	</path>
     	
 
 	<!--====================================-->
@@ -72,7 +78,7 @@
 
 	<target name="compile">
 		<mkdir dir="${build}"/>
-		<javac srcdir="${src}" destdir="${build}" debug="on">
+		<javac srcdir="${src}" destdir="${build}" debug="false" >
 			<classpath refid="classpath"/>
 			<include name="**/*.java"/>
 		</javac>
@@ -83,6 +89,22 @@
 				<include name="**/*.vm"/>
 			</fileset>
 		</copy>
+	</target>
+
+	<target name="test" depends="compile">
+		<junit>
+			<classpath>
+				<path refid="test.classpath"/>
+				<pathelement location="${test.dir}" />
+			</classpath>
+			<batchtest>
+				<fileset dir="${test.src}">
+					<include name="**/*Test*.java" />
+				</fileset>
+			</batchtest>
+		</junit>
+
+
 	</target>
 
 	<!--===================================-->
