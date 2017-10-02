@@ -12,6 +12,9 @@ import java.awt.event.*;
 
 
 import jvn.*;
+import jvn.exception.JvnException;
+import jvn.impl.JvnServerImpl;
+
 import java.io.*;
 
 
