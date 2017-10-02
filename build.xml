@@ -37,8 +37,6 @@
 	<property name="external" 			value="${basedir}/external"/>
 	<property name="dist.lib" 			value="${dist}/lib"/>   
 	<property name="dist.jdoc" 			value="${dist}/jdoc"/>
-	<property name="test.classes" 		value="${dist}/test"/>
-	<property name="test.dir" 			value="${build}/test"/>
 	
 
 	<!--====================================-->
@@ -51,9 +49,6 @@
     </fileset>
   </path>
 
-	<path id="test.classpath">
-		<pathelement location="${test.dir}" />
-	</path>
     	
 
 	<!--====================================-->
@@ -89,22 +84,6 @@
 				<include name="**/*.vm"/>
 			</fileset>
 		</copy>
-	</target>
-
-	<target name="test" depends="compile">
-		<junit>
-			<classpath>
-				<path refid="test.classpath"/>
-				<pathelement location="${test.dir}" />
-			</classpath>
-			<batchtest>
-				<fileset dir="${test.src}">
-					<include name="**/*Test*.java" />
-				</fileset>
-			</batchtest>
-		</junit>
-
-
 	</target>
 
 	<!--===================================-->
