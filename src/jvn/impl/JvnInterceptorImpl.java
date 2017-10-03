@@ -5,6 +5,7 @@ import jvn.JvnState;
 import jvn.exception.JvnException;
 
 import java.io.Serializable;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static jvn.JvnState.*;
 
@@ -14,6 +15,8 @@ public class JvnInterceptorImpl implements JvnObject {
 	private int id;
 	private Serializable managedObject;
 
+	private ReentrantLock lockState;
+
 	public JvnInterceptorImpl(JvnState state, int id, Serializable managedObject) {
 		this.state = state;
 		this.id = id;
@@ -22,7 +25,8 @@ public class JvnInterceptorImpl implements JvnObject {
 
 	@Override
 	public void jvnLockRead() throws JvnException {
-		synchronized (this){
+		lockState.lock();
+		try{
 			switch (this.state){
 				case RC:
 					this.state=R;
@@ -40,16 +44,23 @@ public class JvnInterceptorImpl implements JvnObject {
 				case RWC:
 					this.state=RWC;
 			}
+		}catch (Exception e){
+			throw new JvnException("We have an exception in LockRead: "+e.getMessage());
+
+		}finally {
+			lockState.unlock();
+		}
 
 			//TODO call to jvnLockRead from Server
-		}
+
 
 
 	}
 
 	@Override
 	public void jvnLockWrite() throws JvnException {
-		synchronized (this){
+		lockState.lock();
+		try {
 			switch (this.state){
 				case NL:
 					this.state=W;
@@ -70,13 +81,19 @@ public class JvnInterceptorImpl implements JvnObject {
 					this.state=W;
 					break;
 			}
+		}catch (Exception e){
+			throw new JvnException("We have an exception in LockWrite: "+e.getMessage());
+		}finally {
+			lockState.unlock();
 		}
+
 		//TODO call to jvnLockWrite from Server
 	}
 
 	@Override
 	public void jvnUnLock() throws JvnException {
-		synchronized (this){
+		lockState.lock();
+		try {
 			switch (this.state){
 				case R:
 					this.state=RC;
@@ -88,7 +105,12 @@ public class JvnInterceptorImpl implements JvnObject {
 					this.state=WC;
 					break;
 			}
+		}catch (Exception e){
+			throw new JvnException("We have an exception in UnLock: "+e.getMessage());
+		}finally {
+			lockState.unlock();
 		}
+
 
 	}
 
