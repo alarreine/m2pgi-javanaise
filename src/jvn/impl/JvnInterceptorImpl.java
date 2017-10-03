@@ -15,7 +15,7 @@ public class JvnInterceptorImpl implements JvnObject {
 	private int id;
 	private Serializable managedObject;
 
-	private ReentrantLock lockState;
+	private ReentrantLock lockState = new ReentrantLock();
 
 	public JvnInterceptorImpl(JvnState state, int id, Serializable managedObject) {
 		this.state = state;
