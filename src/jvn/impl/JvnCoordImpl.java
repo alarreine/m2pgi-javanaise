@@ -24,7 +24,6 @@ public class JvnCoordImpl
         extends UnicastRemoteObject
         implements JvnRemoteCoord {
 
-    JvnCacheObject asd = new JvnCacheObject();
     private static Registry registry;
     private static JvnCoordImpl coord;
 
