@@ -19,6 +19,8 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.Hashtable;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
 
 
@@ -26,13 +28,19 @@ public class JvnCoordImpl
         extends UnicastRemoteObject
         implements JvnRemoteCoord {
 
-    private static int nextObjectId;
+    private static int nextId;
 
     private static Registry registry;
     private static JvnCoordImpl coord;
-    private static Hashtable<Integer, JvnCacheObject> mainCache;
+
+    private static Hashtable<Integer, JvnCacheObject> cacheObject;
+    private static Hashtable<String, JvnCacheObject> nameCacheObject;
 
     public static Logger logger = Logger.getLogger("jvn.impl.JvnCoordImpl");
+
+    private final Lock lockNextId = new ReentrantLock();
+    private final Lock lockCacheObject = new ReentrantLock();
+    private final Lock lockNameCacheObject = new ReentrantLock();
 
 
     public static void main(String argv[]) throws Exception {
@@ -45,10 +53,9 @@ public class JvnCoordImpl
             //Initialization
             registry = LocateRegistry.createRegistry(1099);
             coord = new JvnCoordImpl();
-            mainCache = new Hashtable<>();
 
 
-            System.out.println("Coordinator ready");
+            logger.info("Coordinator ready...");
 
 
         } catch (Exception e) {
@@ -64,11 +71,16 @@ public class JvnCoordImpl
      **/
     private JvnCoordImpl() throws Exception {
         try {
-            nextObjectId = -1;
+            nextId = -1;
             registry.rebind("Coordinator", this);
 
-        } catch (Exception e) {
+            cacheObject = new Hashtable<>();
+            nameCacheObject = new Hashtable<>();
 
+            logger.info("Chache ready...");
+
+        } catch (Exception e) {
+            logger.severe("Unable to initialise the chache");
         }
     }
 
@@ -76,13 +88,24 @@ public class JvnCoordImpl
     /**
      * Allocate a NEW JVN object id (usually allocated to a
      * newly created JVN object)
-     *
+     * @return -1 If any error
      * @throws java.rmi.RemoteException,JvnException
      **/
     public int jvnGetObjectId()
             throws java.rmi.RemoteException, JvnException {
-        // to be completed
-        return 0;
+        int idNew = -1;
+        lockNextId.lock();
+        try {
+            nextId++;
+            idNew = nextId;
+        } catch (Exception e) {
+            logger.severe("Imposible to get a new object ID. " + e.getMessage());
+            throw new JvnException("Imposible to get a new object ID. ");
+        } finally {
+            lockNextId.unlock();
+        }
+
+        return idNew;
     }
 
     /**
@@ -90,7 +113,6 @@ public class JvnCoordImpl
      *
      * @param jon : the JVN object name
      * @param jo  : the JVN object
-     * @param joi : the JVN object identification
      * @param js  : the remote reference of the JVNServer
      * @throws java.rmi.RemoteException,JvnException
      **/
