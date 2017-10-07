@@ -1,0 +1,113 @@
+ private HashMap<Integer,JvnObject> jvnObjectIds = null;
+ 
+private JvnRemoteCoord jvnCoordinator = null;
+ 
+ 
+  jvnObjectIds = new HashMap<Integer,JvnObject>();
+                 try {
+                         jvnCoordinator = (JvnRemoteCoord)Naming.lookup("AT_LD_jvnCoordinator");
+                 } catch(NotBoundException e) {
+                         System.out.println("Coordinator not found!");
+                         jvnCoordinator = null;
+                 }
+                 
+                 
+                 try {
+                                 int id = jvnCoordinator.jvnGetObjectId();
+                                 jo.jvnSetObjectId(id);
+                                 jvnCoordinator.jvnRegisterObject(jon,jo,this);
+ 
+                                 // Only put in cache after successful registration
+                                 jvnObjectIds.put(id,jo);
+                         } catch (RemoteException e) {
+                                 throw new JvnException("Network error while registering object!\n" + e);
+                         }
+                         
+                         
+                         
+                         try {
+                                 //System.out.println(type.getName());
+                                 JvnObject temp = jvnCoordinator.jvnLookupObject(jon, type, this);
+                                 //System.out.println(temp);
+                                 if (temp != null) {
+                                         // A Javanaise object with name <jon> exists.
+                                         
+                                         // String-comparison-based type checking !
+                                         if (temp.toString().startsWith(type.getName())) {
+ //                                      if (temp.getClass().getName().startsWith(type.getName())) {
+                                                 try {
+                                                         // Try typecast...
+                                                         // This is supposed to handle JvnObject vs. JvnObjectImpl,
+                                                         // which string-comparison-based type checking cannot do
+                                                         // cleanly.
+                                                         temp.getClass().asSubclass(type);
+                                                         // The Javanaise object with name <jon> has the same type as the
+                                                         // given type, so we assume that it is the same object.
+                                                         jvnObjectIds.put(temp.jvnGetObjectId(), temp);
+                                                         ((JvnObjectImpl)temp).__containedObjectLockState = JvnObjectState.STATE_NOLOCK;
+                                                 }
+                                                 catch (ClassCastException e) {
+                                                         System.err.println(type.getName());
+                                                         System.err.println(temp.toString());
+                                                         throw new JvnException("Object with same name, but different type, previously registered (2)!");
+                                                 }
+                                                 
+                                         }
+                                         else {
+                                                 // Rare case: there is already a Javanaise object with name <jon>,
+                                                 // but the type of that object is different from the given type...
+                                                 // Trying to use the previously registered object may trigger all
+                                                 // kinds of exceptions: ClassCastException, NoSuchMethodException, etc.
+                                                 // We'd better signaling there's a problem.
+                                                 System.err.println(type.getName());
+                                                 System.err.println(temp.toString());
+                                                 throw new JvnException("Object with same name, but different type, previously registered (1)!");
+                                         }
+                                         
+                                         
+                                         
+                                         
+                                         
+                                         
+                                         if(jvnCoordinator == null) {
+                         throw new JvnException("Coordinator is not present!");
+                 } else if( jvnObjectIds.containsKey(joi) ) {
+                         try {
+                                 return jvnCoordinator.jvnLockRead(joi,this);
+                         } catch (RemoteException e) {
+                                 throw new JvnException("Network error while locking object for reading!\n" + e);
+                         }
+                 } else {
+                         throw new JvnException("Unknown object ID! Plase call jvnLookupObject before calling this method!");
+                 }
+                 
+                 
+                  if(jvnCoordinator == null) {
+                         throw new JvnException("Coordinator is not present!");
+                 } else if( jvnObjectIds.containsKey(joi) ) {
+                         try {
+                                 return jvnCoordinator.jvnLockWrite(joi,this);
+                         } catch (RemoteException e) {
+                                 throw new JvnException("Network error while locking object for reading!\n" + e);
+                         }
+                 } else {
+                         throw new JvnException("Unknown object ID! Plase call jvnLookupObject before calling this method!");
+                 }
+                 
+                 
+                 
+                   if(jvnCoordinator == null) {
+                         throw new JvnException("Coordinator is not present!");
+                 } else if( jvnObjectIds.containsKey(joi) ) {
+                         try {
+                                 return jvnCoordinator.jvnLockWrite(joi,this);
+                         } catch (RemoteException e) {
+                                 throw new JvnException("Network error while locking object for reading!\n" + e);
+                         }
+                 } else {
+                         throw new JvnException("Unknown object ID! Plase call jvnLookupObject before calling this method!");
+                 }
+                 
+                 
+                 
+                 
