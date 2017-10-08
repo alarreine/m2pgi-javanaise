@@ -115,7 +115,17 @@ public class JvnCoordImpl
      **/
     public void jvnRegisterObject(String jon, JvnObject jo, JvnRemoteServer js)
             throws java.rmi.RemoteException, JvnException {
-        //TODO jvnRegisterObject
+
+        if (jo != null) throw new NullPointerException("The JvnObject is required");
+        if (cacheObject.containsKey(jo.jvnGetObjectId()))
+            throw new JvnException("The objectId required is already used");
+        if (nameCacheObject.containsKey(jon)) throw new JvnException("The name required is already used");
+
+        JvnCacheObject newObject = new JvnCacheObject(jo,JvnState.W,js);
+
+        cacheObject.put(jo.jvnGetObjectId(),newObject);
+        nameCacheObject.put(jon,newObject);
+        logger.info("Object name:+"+jon+" id:"+jo.jvnGetObjectId()+"is registered");
     }
 
     /**
@@ -175,17 +185,17 @@ public class JvnCoordImpl
 
             int indexClient;
             indexClient = client.getListClient().indexOf(js);
-            if(indexClient>0){
-                if(client.getState()== JvnState.W)
+            if (indexClient > 0) {
+                if (client.getState() == JvnState.W)
                     client.putLastContentAsCurrent();
 
                 client.getListClient().remove(js);
                 logger.info("A client has been terminated");
 
-                if(client.getListClient().isEmpty()) client.setState(JvnState.NL);
+                if (client.getListClient().isEmpty()) client.setState(JvnState.NL);
 
                 break;
-            }else{
+            } else {
                 logger.info("The client does not exist in the list");
             }
 
