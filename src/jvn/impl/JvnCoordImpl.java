@@ -8,17 +8,16 @@
 
 package jvn.impl;
 
-import jvn.JvnCacheObject;
-import jvn.JvnObject;
-import jvn.JvnRemoteCoord;
-import jvn.JvnRemoteServer;
+import jvn.*;
 import jvn.exception.JvnException;
 
 import java.io.Serializable;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
@@ -29,18 +28,15 @@ public class JvnCoordImpl
         implements JvnRemoteCoord {
 
     private static int nextId;
+    private final Lock lockNextId = new ReentrantLock();
 
     private static Registry registry;
     private static JvnCoordImpl coord;
 
-    private static Hashtable<Integer, JvnCacheObject> cacheObject;
-    private static Hashtable<String, JvnCacheObject> nameCacheObject;
+    private static Map<Integer, JvnCacheObject> cacheObject;
+    private static Map<String, JvnCacheObject> nameCacheObject;
 
     public static Logger logger = Logger.getLogger("jvn.impl.JvnCoordImpl");
-
-    private final Lock lockNextId = new ReentrantLock();
-    private final Lock lockCacheObject = new ReentrantLock();
-    private final Lock lockNameCacheObject = new ReentrantLock();
 
 
     public static void main(String argv[]) throws Exception {
@@ -74,8 +70,8 @@ public class JvnCoordImpl
             nextId = -1;
             registry.rebind("Coordinator", this);
 
-            cacheObject = new Hashtable<>();
-            nameCacheObject = new Hashtable<>();
+            cacheObject = new ConcurrentHashMap<Integer, JvnCacheObject>();
+            nameCacheObject = new ConcurrentHashMap<String, JvnCacheObject>();
 
             logger.info("Chache ready...");
 
@@ -88,6 +84,7 @@ public class JvnCoordImpl
     /**
      * Allocate a NEW JVN object id (usually allocated to a
      * newly created JVN object)
+     *
      * @return -1 If any error
      * @throws java.rmi.RemoteException,JvnException
      **/
@@ -118,7 +115,7 @@ public class JvnCoordImpl
      **/
     public void jvnRegisterObject(String jon, JvnObject jo, JvnRemoteServer js)
             throws java.rmi.RemoteException, JvnException {
-        // to be completed
+        //TODO jvnRegisterObject
     }
 
     /**
@@ -130,7 +127,7 @@ public class JvnCoordImpl
      **/
     public JvnObject jvnLookupObject(String jon, JvnRemoteServer js)
             throws java.rmi.RemoteException, JvnException {
-        // to be completed
+        //TODO jvnLookupObject
         return null;
     }
 
@@ -144,7 +141,7 @@ public class JvnCoordImpl
      **/
     public Serializable jvnLockRead(int joi, JvnRemoteServer js)
             throws java.rmi.RemoteException, JvnException {
-        // to be completed
+        //TODO jvnLockRead
         return null;
     }
 
@@ -158,7 +155,7 @@ public class JvnCoordImpl
      **/
     public Serializable jvnLockWrite(int joi, JvnRemoteServer js)
             throws java.rmi.RemoteException, JvnException {
-        // to be completed
+        //TODO jvnLockWrite
         return null;
     }
 
@@ -170,7 +167,31 @@ public class JvnCoordImpl
      **/
     public void jvnTerminate(JvnRemoteServer js)
             throws java.rmi.RemoteException, JvnException {
-        // to be completed
+        Iterator<JvnCacheObject> iterator = cacheObject.values().iterator();
+        JvnCacheObject client;
+
+        while (iterator.hasNext()) {
+            client = iterator.next();
+
+            int indexClient;
+            indexClient = client.getListClient().indexOf(js);
+            if(indexClient>0){
+                if(client.getState()== JvnState.W)
+                    client.putLastContentAsCurrent();
+
+                client.getListClient().remove(js);
+                logger.info("A client has been terminated");
+
+                if(client.getListClient().isEmpty()) client.setState(JvnState.NL);
+
+                break;
+            }else{
+                logger.info("The client does not exist in the list");
+            }
+
+
+        }
+
     }
 }
 
