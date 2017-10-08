@@ -121,11 +121,11 @@ public class JvnCoordImpl
             throw new JvnException("The objectId required is already used");
         if (nameCacheObject.containsKey(jon)) throw new JvnException("The name required is already used");
 
-        JvnCacheObject newObject = new JvnCacheObject(jo,JvnState.W,js);
+        JvnCacheObject newObject = new JvnCacheObject(jo, JvnState.W, js);
 
-        cacheObject.put(jo.jvnGetObjectId(),newObject);
-        nameCacheObject.put(jon,newObject);
-        logger.info("Object name:+"+jon+" id:"+jo.jvnGetObjectId()+"is registered");
+        cacheObject.put(jo.jvnGetObjectId(), newObject);
+        nameCacheObject.put(jon, newObject);
+        logger.info("Object name:+" + jon + " id:" + jo.jvnGetObjectId() + "is registered");
     }
 
     /**
@@ -137,8 +137,9 @@ public class JvnCoordImpl
      **/
     public JvnObject jvnLookupObject(String jon, JvnRemoteServer js)
             throws java.rmi.RemoteException, JvnException {
-        //TODO jvnLookupObject
-        return null;
+        JvnCacheObject returnObject = nameCacheObject.get(jon);
+        logger.info("Object required:" + jon + returnObject == null ? "NOT FOUND" : "FOUND");
+        return returnObject == null ? null : returnObject.getObject();
     }
 
     /**
