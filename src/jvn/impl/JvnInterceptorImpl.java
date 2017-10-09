@@ -20,7 +20,7 @@ public class JvnInterceptorImpl implements JvnObject {
 	public JvnInterceptorImpl(int id, Serializable managedObject) {
 		this.id = id;
 		this.managedObject = managedObject;
-		this.state = JvnState.NL;
+		this.state = JvnState.W;
 
 	}
 
@@ -86,7 +86,7 @@ public class JvnInterceptorImpl implements JvnObject {
 				this.notifyAll();
 			} else {
 
-				throw new JvnException("We have an exception in UnLock: ");
+				throw new JvnException("Unlock exception ");
 			}
 
 		}
