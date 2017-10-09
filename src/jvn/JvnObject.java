@@ -7,8 +7,6 @@
 
 package jvn;
 
-import jvn.exception.JvnException;
-
 import java.io.*;
 
 /**
@@ -24,21 +22,21 @@ public interface JvnObject extends Serializable {
 	* @throws JvnException
 	**/
 	public void jvnLockRead()
-	throws JvnException;
+	throws jvn.JvnException; 
 
 	/**
 	* Get a Write lock on the object 
 	* @throws JvnException
 	**/
 	public void jvnLockWrite()
-     	throws JvnException;
+     	throws jvn.JvnException; 
 
 	/**
 	* Unlock  the object 
 	* @throws JvnException
 	**/
 	public void jvnUnLock()
-	throws JvnException;
+	throws jvn.JvnException; 
 	
 	
 	/**
@@ -46,14 +44,14 @@ public interface JvnObject extends Serializable {
 	* @throws JvnException
 	**/
 	public int jvnGetObjectId()
-	throws JvnException;
+	throws jvn.JvnException; 
 	
 	/**
 	* Get the object state
 	* @throws JvnException
 	**/
 	public Serializable jvnGetObjectState()
-	throws JvnException;
+	throws jvn.JvnException; 
 	
 	
 	/**
@@ -61,7 +59,7 @@ public interface JvnObject extends Serializable {
 	* @throws JvnException
 	**/
   public void jvnInvalidateReader()
-	throws JvnException;
+	throws jvn.JvnException;
 	    
 	/**
 	* Invalidate the Write lock of the JVN object  
@@ -69,7 +67,7 @@ public interface JvnObject extends Serializable {
 	* @throws JvnException
 	**/
   public Serializable jvnInvalidateWriter()
-	throws JvnException;
+	throws jvn.JvnException;
 	
 	/**
 	* Reduce the Write lock of the JVN object 
@@ -77,5 +75,5 @@ public interface JvnObject extends Serializable {
 	* @throws JvnException
 	**/
    public Serializable jvnInvalidateWriterForReader()
-	 throws JvnException;
+	 throws jvn.JvnException;	
 }
