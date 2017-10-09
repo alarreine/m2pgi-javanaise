@@ -117,7 +117,7 @@ public class JvnCoordImpl
     public void jvnRegisterObject(String jon, JvnObject jo, JvnRemoteServer js)
             throws java.rmi.RemoteException, JvnException {
 
-        if (jo != null) throw new NullPointerException("The JvnObject is required");
+        if (jo == null) throw new NullPointerException("The JvnObject is required");
         if (cacheObject.containsKey(jo.jvnGetObjectId()))
             throw new JvnException("The objectId required is already used");
         if (nameCacheObject.containsKey(jon)) throw new JvnException("The name required is already used");
@@ -162,7 +162,7 @@ public class JvnCoordImpl
             throw new JvnException("The ID:" + joi + " is not registered in the cache");
         }
 
-        if (objectCache.getState().equals(JvnState.NL)) {
+
             cacheObject.computeIfPresent(joi, new BiFunction<Integer, JvnCacheObject, JvnCacheObject>() {
                 @Override
                 public JvnCacheObject apply(Integer key, JvnCacheObject jvnCacheObject) {
@@ -189,7 +189,7 @@ public class JvnCoordImpl
                 }
             });
             logger.info("State After: " + JvnState.NL.getValue() + "State before:" + JvnState.R.getValue());
-        }
+
 
         return objectCache.getLatesContent();
     }
