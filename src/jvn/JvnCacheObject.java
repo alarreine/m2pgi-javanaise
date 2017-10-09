@@ -1,63 +1,48 @@
 package jvn;
 
+import jvn.exception.JvnException;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 public class JvnCacheObject {
 
     private JvnObject object;
-    private HashMap<JvnState, List<JvnRemoteServer>> stateClient;
-    private Serializable latesContent = null;
-
-
-    public JvnCacheObject(JvnObject object, JvnState initialState, JvnRemoteServer initialServer) {
-        this.object = object;
-        this.stateClient = new HashMap<>();
-        List<JvnRemoteServer> listClient = new ArrayList<>();
-        listClient.add(initialServer);
-        this.stateClient.put(initialState, listClient);
-    }
+    private List<JvnRemoteServer> listClient;
+    private Serializable latesContent;
+    private JvnState state;
 
     /**
-     * Return object
-     * @return Object instance
-     */
-    public JvnObject getObject() {
-        return object;
-    }
-
-    /**
-     * Set Object
+     * Constructor
      * @param object
-     */
-    public void setObject(JvnObject object) {
-        this.object = object;
-    }
-
-    /**
-     * Get List of Client that are using the object with an state
      * @param state
-     * @return List object
+     * @param serverClient
      */
-    public List<JvnRemoteServer> getRemoteServerByState(JvnState state) {
-        return stateClient.get(state);
+    public JvnCacheObject(JvnObject object, JvnState state, JvnRemoteServer serverClient) {
+        this.object = object;
+        this.state=state;
+        getListClient().add(serverClient);
+
     }
 
     /**
-     * Add Referece of the remote client
-     * @param state State of the object in the client side
-     * @param client reference of the client
+     * Constructor
+     * @param object
+     * @param serverClient
      */
-    public void setRemoteClientByState(JvnState state, JvnRemoteServer client) {
-        if (stateClient.containsKey(state)) {
-            stateClient.get(state).add(client);
-        } else {
-            List<JvnRemoteServer> listClient = new ArrayList<>();
-            listClient.add(client);
-            stateClient.put(state, listClient);
-        }
+    public JvnCacheObject(JvnObject object, JvnRemoteServer serverClient){
+        this.object = object;
+        getListClient().add(serverClient);
+    }
+
+    public List<JvnRemoteServer> getListClient(){
+       if(listClient==null){
+           listClient = new ArrayList<>();
+       }
+        return listClient;
     }
 
     /**
@@ -75,4 +60,57 @@ public class JvnCacheObject {
     public void setLatesContent(Serializable latesContent) {
         this.latesContent = latesContent;
     }
+
+    public JvnState getState() {
+        return state;
+    }
+
+    public void setState(JvnState state) {
+        this.state = state;
+    }
+
+    public JvnObject getObject() {
+        return object;
+    }
+
+    public void setObject(JvnObject object) {
+        this.object = object;
+    }
+
+    public void putLastContentAsCurrent() throws JvnException {
+        setLatesContent(getObject().jvnInvalidateWriter());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        JvnCacheObject that = (JvnCacheObject) o;
+
+        if (object != null ? !object.equals(that.object) : that.object != null) return false;
+        if (listClient != null ? !listClient.equals(that.listClient) : that.listClient != null) return false;
+        if (latesContent != null ? !latesContent.equals(that.latesContent) : that.latesContent != null) return false;
+        return state == that.state;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = object != null ? object.hashCode() : 0;
+        result = 31 * result + (listClient != null ? listClient.hashCode() : 0);
+        result = 31 * result + (latesContent != null ? latesContent.hashCode() : 0);
+        result = 31 * result + (state != null ? state.hashCode() : 0);
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "JvnCacheObject{" +
+                "object=" + object +
+                ", listClient=" + listClient +
+                ", latesContent=" + latesContent +
+                ", state=" + state +
+                '}';
+    }
 }
+
