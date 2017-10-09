@@ -21,7 +21,6 @@ public class JvnInterceptorImpl implements JvnObject {
 		this.id = id;
 		this.managedObject = managedObject;
 		this.state = JvnState.W;
-
 	}
 
 	@Override
@@ -88,6 +87,7 @@ public class JvnInterceptorImpl implements JvnObject {
 
 				throw new JvnException("Unlock exception ");
 			}
+        
 
 		}
 	}
