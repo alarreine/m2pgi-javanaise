@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.BiFunction;
 import java.util.logging.Logger;
 
 
@@ -152,8 +153,45 @@ public class JvnCoordImpl
      **/
     public Serializable jvnLockRead(int joi, JvnRemoteServer js)
             throws java.rmi.RemoteException, JvnException {
-        //TODO jvnLockRead
-        return null;
+
+        JvnCacheObject objectCache = cacheObject.get(joi);
+
+        if (objectCache == null) {
+
+            logger.info("The ID:" + joi + " is not registered in the cache");
+            throw new JvnException("The ID:" + joi + " is not registered in the cache");
+        }
+
+        if (objectCache.getState().equals(JvnState.NL)) {
+            cacheObject.computeIfPresent(joi, new BiFunction<Integer, JvnCacheObject, JvnCacheObject>() {
+                @Override
+                public JvnCacheObject apply(Integer key, JvnCacheObject jvnCacheObject) {
+                    try {
+                        switch (jvnCacheObject.getState()) {
+                            case NL:
+                                jvnCacheObject.getListClient().clear();
+                                jvnCacheObject.getListClient().add(js);
+                                break;
+                            case R:
+                                jvnCacheObject.getListClient().add(js);
+                                break;
+                            case W:
+                                jvnCacheObject.getListClient().get(0).jvnInvalidateWriterForReader(joi);
+                                jvnCacheObject.setState(JvnState.R);
+                                break;
+                        }
+                    } catch (Exception e) {
+                        logger.severe("Error in READ LOCK");
+                    }
+
+
+                    return jvnCacheObject;
+                }
+            });
+            logger.info("State After: " + JvnState.NL.getValue() + "State before:" + JvnState.R.getValue());
+        }
+
+        return objectCache.getLatesContent();
     }
 
     /**

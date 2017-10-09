@@ -45,7 +45,6 @@ public class JvnCacheObject {
         return listClient;
     }
 
-
     /**
      * Get the last updated content of the object
      * @return
