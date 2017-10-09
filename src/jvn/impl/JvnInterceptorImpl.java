@@ -11,107 +11,85 @@ import static jvn.JvnState.*;
 
 public class JvnInterceptorImpl implements JvnObject {
 
-	private JvnState state;
+	JvnState state;
 	private int id;
 	private Serializable managedObject;
 
 	private ReentrantLock lockState = new ReentrantLock();
 
-	public JvnInterceptorImpl(JvnState state, int id, Serializable managedObject) {
-		this.state = state;
+	public JvnInterceptorImpl(int id, Serializable managedObject) {
 		this.id = id;
 		this.managedObject = managedObject;
+		this.state = JvnState.NL;
+
 	}
 
 	@Override
 	public void jvnLockRead() throws JvnException {
-		lockState.lock();
-		try{
-			switch (this.state){
-				case RC:
-					this.state=R;
-					break;
-				case NL:
-					this.state=R;
-					break;
-				case WC:
-					this.state=RWC;
-					break;
-				case R:
-					this.state=R;
-				case W:
-					this.state=R;
-				case RWC:
-					this.state=RWC;
+
+		// Accès séquentiel à l'objet
+		synchronized (this.state) {
+
+			boolean serverCall = false;
+			synchronized (this) {
+				if (this.state == JvnState.RC) {
+					this.state = JvnState.R;
+				} else if (this.state == JvnState.R) {
+
+				} else {
+					serverCall = true;
+				}
 			}
-		}catch (Exception e){
-			throw new JvnException("We have an exception in LockRead: "+e.getMessage());
+			if (serverCall) {
+				Serializable o = JvnServerImpl.jvnGetServer().jvnLockRead(id);
 
-		}finally {
-			lockState.unlock();
+				synchronized (this) {
+					this.managedObject = o;
+				}
+			}
 		}
-
-			//TODO call to jvnLockRead from Server
-
-
-
 	}
 
 	@Override
 	public void jvnLockWrite() throws JvnException {
-		lockState.lock();
-		try {
-			switch (this.state){
-				case NL:
-					this.state=W;
-					break;
-				case RC:
-					this.state=W;
-					break;
-				case WC:
-					this.state=RWC;
-					break;
-				case R:
-					this.state=W;
-					break;
-				case W:
-					this.state=W;
-					break;
-				case RWC:
-					this.state=W;
-					break;
-			}
-		}catch (Exception e){
-			throw new JvnException("We have an exception in LockWrite: "+e.getMessage());
-		}finally {
-			lockState.unlock();
-		}
+		// Accès séquentiel à l'objet
+		synchronized (this.state) {
 
-		//TODO call to jvnLockWrite from Server
+			boolean serverCall = false;
+			synchronized (this) {
+				if (this.state == JvnState.WC) {
+					this.state = JvnState.W;
+				} else if (this.state == JvnState.W) {
+
+				} else {
+					serverCall = true;
+				}
+			}
+			if (serverCall) {
+				Serializable o = JvnServerImpl.jvnGetServer().jvnLockWrite(id);
+
+				synchronized (this) {
+					this.managedObject = o;
+				}
+			}
+		}
 	}
 
 	@Override
 	public void jvnUnLock() throws JvnException {
-		lockState.lock();
-		try {
-			switch (this.state){
-				case R:
-					this.state=RC;
-					break;
-				case W:
-					this.state=WC;
-					break;
-				case RWC:
-					this.state=WC;
-					break;
+		synchronized (this) {
+			if (this.state == JvnState.W) {
+				this.state = JvnState.WC;
+				this.notifyAll();
+			} else if (this.state == JvnState.R) {
+				this.state = JvnState.WC;
+				this.notifyAll();
+			} else {
+
+				throw new JvnException("We have an exception in UnLock: ");
 			}
-		}catch (Exception e){
-			throw new JvnException("We have an exception in UnLock: "+e.getMessage());
-		}finally {
-			lockState.unlock();
+
 		}
-
-
 	}
 
 	@Override
