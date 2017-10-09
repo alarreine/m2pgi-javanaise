@@ -42,7 +42,7 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 			// call the coordinator
 			jvnCoordinator = (JvnRemoteCoord) Naming.lookup("Coordinator");
 		} catch (NotBoundException e) {
-			System.out.println("Coordinator not found!");
+			System.out.println("Coordinator not found");
 			jvnCoordinator = null;
 		}
 	}
