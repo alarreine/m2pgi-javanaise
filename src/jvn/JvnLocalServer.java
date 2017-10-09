@@ -6,8 +6,6 @@
  */
 
 package jvn;
-import jvn.exception.JvnException;
-
 import java.io.Serializable;
 
 /**
@@ -25,7 +23,7 @@ public interface JvnLocalServer {
 	* @throws JvnException
 	**/
 	public  JvnObject jvnCreateObject(Serializable jos)
-	throws JvnException;
+	throws jvn.JvnException ; 
 	
 	/**
 	* Associate a symbolic name with a JVN object
@@ -34,7 +32,7 @@ public interface JvnLocalServer {
 	* @throws JvnException
 	**/
 	public  void jvnRegisterObject(String jon, JvnObject jo)
-	throws JvnException;
+	throws jvn.JvnException; 
 	
 	/**
 	* Get the reference of a JVN object associated to a symbolic name
@@ -43,7 +41,7 @@ public interface JvnLocalServer {
 	* @throws JvnException
 	**/
 	public  JvnObject jvnLookupObject(String jon)
-	throws JvnException;
+	throws jvn.JvnException ; 
 	
 	
 	/**
@@ -70,7 +68,7 @@ public interface JvnLocalServer {
     * @throws JvnException
     **/
    public  void jvnTerminate()
-   throws JvnException;
+   throws jvn.JvnException; 
 }
 
  

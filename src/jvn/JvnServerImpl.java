@@ -6,12 +6,7 @@
  * Authors: 
  */
 
-package jvn.impl;
-
-import jvn.exception.JvnException;
-import jvn.JvnLocalServer;
-import jvn.JvnObject;
-import jvn.JvnRemoteServer;
+package jvn;
 
 import java.rmi.server.UnicastRemoteObject;
 import java.io.*;
@@ -20,7 +15,7 @@ import java.io.*;
 
 public class JvnServerImpl 	
               extends UnicastRemoteObject 
-							implements JvnLocalServer, JvnRemoteServer {
+							implements JvnLocalServer, JvnRemoteServer{
 	
   // A JVN server is managed as a singleton 
 	private static JvnServerImpl js = null;
@@ -55,7 +50,7 @@ public class JvnServerImpl
 	* @throws JvnException
 	**/
 	public  void jvnTerminate()
-	throws JvnException {
+	throws jvn.JvnException {
     // to be completed 
 	} 
 	
@@ -64,8 +59,8 @@ public class JvnServerImpl
 	* @param o : the JVN object state
 	* @throws JvnException
 	**/
-	public JvnObject jvnCreateObject(Serializable o)
-	throws JvnException {
+	public  JvnObject jvnCreateObject(Serializable o)
+	throws jvn.JvnException { 
 		// to be completed 
 		return null; 
 	}
@@ -77,7 +72,7 @@ public class JvnServerImpl
 	* @throws JvnException
 	**/
 	public  void jvnRegisterObject(String jon, JvnObject jo)
-	throws JvnException {
+	throws jvn.JvnException {
 		// to be completed 
 	}
 	
@@ -88,7 +83,7 @@ public class JvnServerImpl
 	* @throws JvnException
 	**/
 	public  JvnObject jvnLookupObject(String jon)
-	throws JvnException {
+	throws jvn.JvnException {
     // to be completed 
 		return null;
 	}	
@@ -126,7 +121,7 @@ public class JvnServerImpl
 	* @throws java.rmi.RemoteException,JvnException
 	**/
   public void jvnInvalidateReader(int joi)
-	throws java.rmi.RemoteException,JvnException {
+	throws java.rmi.RemoteException,jvn.JvnException {
 		// to be completed 
 	};
 	    
@@ -137,7 +132,7 @@ public class JvnServerImpl
 	* @throws java.rmi.RemoteException,JvnException
 	**/
   public Serializable jvnInvalidateWriter(int joi)
-	throws java.rmi.RemoteException,JvnException {
+	throws java.rmi.RemoteException,jvn.JvnException { 
 		// to be completed 
 		return null;
 	};
@@ -149,7 +144,7 @@ public class JvnServerImpl
 	* @throws java.rmi.RemoteException,JvnException
 	**/
    public Serializable jvnInvalidateWriterForReader(int joi)
-	 throws java.rmi.RemoteException,JvnException {
+	 throws java.rmi.RemoteException,jvn.JvnException { 
 		// to be completed 
 		return null;
 	 };

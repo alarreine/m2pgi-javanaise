@@ -76,8 +76,8 @@
 			<classpath refid="classpath"/>
 			<include name="**/*.java"/>
 		</javac>
-		<rmic classname="jvn.impl.JvnServerImpl" base="${build}"/>
-		<rmic classname="jvn.impl.JvnCoordImpl" base="${build}"/>
+		<rmic classname="jvn.JvnServerImpl" base="${build}"/>
+		<rmic classname="jvn.JvnCoordImpl" base="${build}"/>
 		<copy toDir="${build}" preservelastmodified="yes">
 			<fileset dir="${src}">
 				<include name="**/*.vm"/>
