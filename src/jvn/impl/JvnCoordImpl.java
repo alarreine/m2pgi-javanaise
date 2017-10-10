@@ -154,6 +154,35 @@ public class JvnCoordImpl
     public Serializable jvnLockRead(int joi, JvnRemoteServer js)
             throws java.rmi.RemoteException, JvnException {
 
+
+        cacheObject.computeIfPresent(joi, new BiFunction<Integer, JvnCacheObject, JvnCacheObject>() {
+            @Override
+            public JvnCacheObject apply(Integer key, JvnCacheObject jvnCacheObject) {
+                try {
+                    switch (jvnCacheObject.getState()) {
+                        case NL:
+                            jvnCacheObject.getListClient().clear();
+                            logger.info("IDObject: " + jvnCacheObject.getObject().jvnGetObjectId() + " State After: " + JvnState.NL.getValue() + "State before:" + JvnState.R.getValue());
+                            break;
+                        case R:
+                            logger.info("IDObject: " + jvnCacheObject.getObject().jvnGetObjectId() + " State After: " + JvnState.R.getValue() + "State before:" + JvnState.R.getValue());
+                            break;
+                        case W:
+                            logger.info("IDObject: " + jvnCacheObject.getObject().jvnGetObjectId() + " State After: " + JvnState.W.getValue() + "State before:" + JvnState.R.getValue());
+                            jvnCacheObject.getListClient().get(0).jvnInvalidateWriterForReader(joi);
+
+                            break;
+                    }
+                } catch (Exception e) {
+                    logger.severe("Error in READ LOCK");
+                }
+
+                jvnCacheObject.setState(JvnState.R);
+                jvnCacheObject.getListClient().add(js);
+                return jvnCacheObject;
+            }
+        });
+
         JvnCacheObject objectCache = cacheObject.get(joi);
 
         if (objectCache == null) {
@@ -161,35 +190,6 @@ public class JvnCoordImpl
             logger.info("The ID:" + joi + " is not registered in the cache");
             throw new JvnException("The ID:" + joi + " is not registered in the cache");
         }
-
-
-            cacheObject.computeIfPresent(joi, new BiFunction<Integer, JvnCacheObject, JvnCacheObject>() {
-                @Override
-                public JvnCacheObject apply(Integer key, JvnCacheObject jvnCacheObject) {
-                    try {
-                        switch (jvnCacheObject.getState()) {
-                            case NL:
-                                jvnCacheObject.getListClient().clear();
-                                jvnCacheObject.getListClient().add(js);
-                                break;
-                            case R:
-                                jvnCacheObject.getListClient().add(js);
-                                break;
-                            case W:
-                                jvnCacheObject.getListClient().get(0).jvnInvalidateWriterForReader(joi);
-                                jvnCacheObject.setState(JvnState.R);
-                                break;
-                        }
-                    } catch (Exception e) {
-                        logger.severe("Error in READ LOCK");
-                    }
-
-
-                    return jvnCacheObject;
-                }
-            });
-            logger.info("State After: " + JvnState.NL.getValue() + "State before:" + JvnState.R.getValue());
-
 
         return objectCache.getLatesContent();
     }
@@ -204,8 +204,50 @@ public class JvnCoordImpl
      **/
     public Serializable jvnLockWrite(int joi, JvnRemoteServer js)
             throws java.rmi.RemoteException, JvnException {
-        //TODO jvnLockWrite
-        return null;
+
+        cacheObject.computeIfPresent(joi, new BiFunction<Integer, JvnCacheObject, JvnCacheObject>() {
+            @Override
+            public JvnCacheObject apply(Integer key, JvnCacheObject jvnCacheObject) {
+                try {
+                    switch (jvnCacheObject.getState()) {
+                        case NL:
+                            jvnCacheObject.setState(JvnState.W);
+                            logger.info("IDObject: " + jvnCacheObject.getObject().jvnGetObjectId() + " State After: " + JvnState.NL.getValue() + "State before:" + JvnState.W.getValue());
+                            break;
+                        case R:
+                            for (JvnRemoteServer s : jvnCacheObject.getListClient()) {
+                                s.jvnInvalidateReader(joi);
+                            }
+                            jvnCacheObject.setState(JvnState.W);
+                            logger.info("IDObject: " + jvnCacheObject.getObject().jvnGetObjectId() + " State After: " + JvnState.R.getValue() + "State before:" + JvnState.W.getValue());
+                            //TODO We have to create the thread to wait the reponse of each client in te list. In V2
+                            break;
+                        case W:
+                            jvnCacheObject.setLatesContent(jvnCacheObject.getListClient().get(0).jvnInvalidateWriter(joi));
+                            logger.info("IDObject: " + jvnCacheObject.getObject().jvnGetObjectId() + " State After: " + JvnState.W.getValue() + "State before:" + JvnState.W.getValue());
+                            break;
+                    }
+                    jvnCacheObject.getListClient().clear();
+                    jvnCacheObject.getListClient().add(js);
+                } catch (Exception e) {
+                    logger.severe("Error in READ LOCK");
+                }
+
+
+                return jvnCacheObject;
+            }
+        });
+
+        JvnCacheObject objectCache = cacheObject.get(joi);
+
+        if (objectCache == null) {
+
+            logger.info("The ID:" + joi + " is not registered in the cache");
+            throw new JvnException("The ID:" + joi + " is not registered in the cache");
+        }
+
+        return objectCache.getLatesContent();
+
     }
 
     /**
