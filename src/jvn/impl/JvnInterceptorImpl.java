@@ -7,7 +7,7 @@ import jvn.exception.JvnException;
 import java.io.Serializable;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static jvn.JvnState.R;
+import static jvn.JvnState.*;
 
 public class JvnInterceptorImpl implements JvnObject {
 
@@ -84,7 +84,6 @@ public class JvnInterceptorImpl implements JvnObject {
                 this.state = JvnState.WC;
                 this.notifyAll();
             } else {
-
                 throw new JvnException("Unlock exception ");
             }
 
@@ -94,7 +93,6 @@ public class JvnInterceptorImpl implements JvnObject {
 
     @Override
     public int jvnGetObjectId() throws JvnException {
-
         return this.id;
     }
 
@@ -105,20 +103,62 @@ public class JvnInterceptorImpl implements JvnObject {
 
     @Override
     public void jvnInvalidateReader() throws JvnException {
-        // TODO InvalidateReader
-
+        synchronized (this) {
+            if (state == R) {
+                try {
+                    while (state == R) {
+                        wait();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                state = NL;
+            }
+        }
     }
 
     @Override
     public Serializable jvnInvalidateWriter() throws JvnException {
-        // TODO InvalidateWriter
-        return null;
+        synchronized (this) {
+            if (state == W) {
+                try {
+                    wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            state = NL;
+            return managedObject;
+        }
     }
 
     @Override
     public Serializable jvnInvalidateWriterForReader() throws JvnException {
-        // TODO InvalidateWriterForReader
-        return null;
+        synchronized (this) {
+            switch (state) {
+                case RWC:
+                    state = R;
+                    break;
+                case WC:
+                    state = RC;
+                    break;
+                case W:
+                    while (state == W) {
+                        try {
+                            wait();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+
+                        state = RC;
+                    }
+                    break;
+                default:
+                    break;
+            }
+
+            return managedObject;
+        }
     }
 
 }
