@@ -91,8 +91,8 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
             return new JvnInterceptorImpl(id, o);
         } catch (RemoteException e) {
             loggerJvnServer.severe("We can't get a new ObjectID. Msg:" + e.getMessage());
+            return null;
         }
-        return null;
     }
 
     /**

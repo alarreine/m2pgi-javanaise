@@ -126,7 +126,7 @@ public class JvnCoordImpl
 
         cacheObject.put(jo.jvnGetObjectId(), newObject);
         nameCacheObject.put(jon, newObject);
-        logger.info("Object name:+" + jon + " id:" + jo.jvnGetObjectId() + "is registered");
+        logger.info("Object name: " + jon + " id: " + jo.jvnGetObjectId() + " is registered");
     }
 
     /**
@@ -163,14 +163,19 @@ public class JvnCoordImpl
                         case NL:
                             jvnCacheObject.getListClient().clear();
                             logger.info("IDObject: " + jvnCacheObject.getObject().jvnGetObjectId() + " State After: " + JvnState.NL.getValue() + "State before:" + JvnState.R.getValue());
+                            jvnCacheObject.getListClient().add(js);
                             break;
                         case R:
                             logger.info("IDObject: " + jvnCacheObject.getObject().jvnGetObjectId() + " State After: " + JvnState.R.getValue() + "State before:" + JvnState.R.getValue());
+                            jvnCacheObject.getListClient().add(js);
                             break;
                         case W:
+                            JvnRemoteServer client = jvnCacheObject.getListClient().get(0);
+                            jvnCacheObject.setLatesContent(client.jvnInvalidateWriterForReader(joi));
+                            if (!client.equals(js)) {
+                                jvnCacheObject.getListClient().add(js);
+                            }
                             logger.info("IDObject: " + jvnCacheObject.getObject().jvnGetObjectId() + " State After: " + JvnState.W.getValue() + "State before:" + JvnState.R.getValue());
-                            jvnCacheObject.getListClient().get(0).jvnInvalidateWriterForReader(joi);
-
                             break;
                     }
                 } catch (Exception e) {
@@ -178,7 +183,7 @@ public class JvnCoordImpl
                 }
 
                 jvnCacheObject.setState(JvnState.R);
-                jvnCacheObject.getListClient().add(js);
+
                 return jvnCacheObject;
             }
         });
@@ -187,8 +192,8 @@ public class JvnCoordImpl
 
         if (objectCache == null) {
 
-            logger.info("The ID:" + joi + " is not registered in the cache");
-            throw new JvnException("The ID:" + joi + " is not registered in the cache");
+            logger.info("The ID: " + joi + " is not registered in the cache");
+            throw new JvnException("The ID: " + joi + " is not registered in the cache");
         }
 
         return objectCache.getLatesContent();
@@ -242,8 +247,8 @@ public class JvnCoordImpl
 
         if (objectCache == null) {
 
-            logger.info("The ID:" + joi + " is not registered in the cache");
-            throw new JvnException("The ID:" + joi + " is not registered in the cache");
+            logger.info("The ID: " + joi + " is not registered in the cache");
+            throw new JvnException("The ID: " + joi + " is not registered in the cache");
         }
 
         return objectCache.getLatesContent();
