@@ -266,6 +266,8 @@ public class JvnCoordImpl
         Iterator<JvnCacheObject> iterator = cacheObject.values().iterator();
         JvnCacheObject client;
 
+        logger.info("Trying to terminate a client...");
+
         while (iterator.hasNext()) {
             client = iterator.next();
 

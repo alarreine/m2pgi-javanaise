@@ -58,8 +58,6 @@ public class JvnInterceptorImpl implements JvnObject {
             synchronized (this) {
                 if (this.state == JvnState.WC) {
                     this.state = JvnState.W;
-                } else if (this.state == JvnState.W) {
-
                 } else {
                     serverCall = true;
                 }
@@ -81,7 +79,7 @@ public class JvnInterceptorImpl implements JvnObject {
                 this.state = JvnState.WC;
                 this.notifyAll();
             } else if (this.state == JvnState.R) {
-                this.state = JvnState.WC;
+                this.state = JvnState.RC;
                 this.notifyAll();
             } else {
                 throw new JvnException("Unlock exception ");
@@ -122,7 +120,9 @@ public class JvnInterceptorImpl implements JvnObject {
         synchronized (this) {
             if (state == W) {
                 try {
-                    wait();
+                    while (state == W) {
+                        this.wait();
+                    }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -145,7 +145,10 @@ public class JvnInterceptorImpl implements JvnObject {
                 case W:
                     while (state == W) {
                         try {
-                            wait();
+                            while (state == W) {
+                                this.wait();
+                            }
+
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
