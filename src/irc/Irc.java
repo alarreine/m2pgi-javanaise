@@ -15,6 +15,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.Serializable;
 
 
@@ -26,8 +28,12 @@ public class Irc {
     JFrame frame;
     JPanel buttonPanel;
     JPanel sallePanel;
+    Button connectSalle;
+    Button disconnectSalle;
 
     JvnObject sentence;
+
+    JvnServerImpl js;
 
 
     /**
@@ -38,20 +44,10 @@ public class Irc {
         try {
 
             // initialize JVN
-            JvnServerImpl js = JvnServerImpl.jvnGetServer();
+//            JvnServerImpl js = JvnServerImpl.jvnGetServer();
 
-            // look up the IRC object in the JVN server
-            // if not found, create it, and register it in the JVN server
-            JvnObject jo = js.jvnLookupObject("IRC");
-
-            if (jo == null) {
-                jo = js.jvnCreateObject((Serializable) new Sentence());
-                // after creation, I have a write lock on the object
-                jo.jvnUnLock();
-                js.jvnRegisterObject("IRC", jo);
-            }
             // create the graphical part of the Chat application
-            new Irc(jo);
+            new Irc();
 
         } catch (Exception e) {
             System.out.println("IRC problem : " + e.getMessage());
@@ -60,23 +56,29 @@ public class Irc {
 
     /**
      * IRC Constructor
-     *
-     * @param jo the JVN object representing the Chat
      **/
-    public Irc(JvnObject jo) {
-        sentence = jo;
+    public Irc() {
+        //sentence = jo;
+
+        try {
+
+            // initialize JVN
+            js = JvnServerImpl.jvnGetServer();
+        } catch (Exception e) {
+
+        }
         frame = new JFrame();
         buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         sallePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        //frame.setLayout(new GridLayout(1,1));
-        //frame.setBounds(100, 100, 200, 300);
-        frame.setSize(new Dimension(400,300));
+
+        frame.setSize(new Dimension(400, 300));
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.getContentPane().setLayout(new BorderLayout(0, 0));
 
-        salle= new JTextField("IRC");
+        salle = new JTextField("IRC");
         text = new JTextArea();
         data = new JTextField();
+
 
         text.setEditable(false);
         text.setForeground(Color.red);
@@ -84,38 +86,51 @@ public class Irc {
 
         text.setPreferredSize(new Dimension(100, 100));
         data.setPreferredSize(new Dimension(100, 100));
-        salle.setPreferredSize(new Dimension(250,20));
+        salle.setPreferredSize(new Dimension(180, 20));
 
         frame.add(data, BorderLayout.CENTER);
         frame.add(text, BorderLayout.WEST);
 
-        Button changeSalle = new Button("Change Chat");
-        changeSalle.setPreferredSize(new Dimension(100,20));
+        ButtonAction buttonAction = new ButtonAction(this);
+
+        connectSalle = new Button("Connect to..");
+        connectSalle.setPreferredSize(new Dimension(100, 20));
+        connectSalle.setActionCommand("enterSalle");
+        connectSalle.addActionListener(buttonAction);
+
+        disconnectSalle = new Button("Disconnect..");
+        disconnectSalle.setPreferredSize(new Dimension(100, 20));
+        disconnectSalle.setActionCommand("exitSalle");
+        disconnectSalle.addActionListener(buttonAction);
+
+        sallePanel.add(salle);
+        sallePanel.add(connectSalle);
+        sallePanel.add(disconnectSalle);
+
 
         Button read_button = new Button("read");
-        read_button.addActionListener(new readListener(this));
+        read_button.setActionCommand("readListener");
+        read_button.addActionListener(buttonAction);
         buttonPanel.add(read_button);
 
         Button write_button = new Button("write");
-        write_button.addActionListener(new writeListener(this));
+        write_button.setActionCommand("writeListener");
+        write_button.addActionListener(buttonAction);
         buttonPanel.add(write_button);
-        sallePanel.add(salle);
-        sallePanel.add(changeSalle);
+
         //frame.setSize(545,201);
         frame.add(sallePanel, BorderLayout.NORTH);
         frame.add(buttonPanel, BorderLayout.SOUTH);
         frame.setVisible(true);
+
+
     }
 }
 
-
-/**
- * Internal class to manage user events (read) on the CHAT application
- **/
-class readListener implements ActionListener {
+class ButtonAction implements ActionListener {
     Irc irc;
 
-    public readListener(Irc i) {
+    public ButtonAction(Irc i) {
         irc = i;
     }
 
@@ -124,52 +139,78 @@ class readListener implements ActionListener {
      **/
     public void actionPerformed(ActionEvent e) {
         try {
-            // lock the object in read mode
-            irc.sentence.jvnLockRead();
+            switch (e.getActionCommand()) {
+                case "writeListener":
 
-            // invoke the method
-            String s = ((Sentence) (irc.sentence.jvnGetObjectState())).read();
+                    // lock the object in write mode
+                    irc.sentence.jvnLockWrite();
 
-            // unlock the object
-            irc.sentence.jvnUnLock();
+                    // invoke the method
+                    ((Sentence) (irc.sentence.jvnGetObjectState())).write(irc.data.getText());
 
-            // display the read value
-            irc.data.setText(s);
-            irc.text.append(s + "\n");
-        } catch (JvnException je) {
-            System.out.println("IRC problem : " + je.getMessage());
-        }
-    }
-}
+                    // unlock the object
+                    irc.sentence.jvnUnLock();
 
-/**
- * Internal class to manage user events (write) on the CHAT application
- **/
-class writeListener implements ActionListener {
-    Irc irc;
+                    break;
+                case "readListener":
+                    // lock the object in read mode
+                    irc.sentence.jvnLockRead();
 
-    public writeListener(Irc i) {
-        irc = i;
-    }
+                    // invoke the method
+                    String s = ((Sentence) (irc.sentence.jvnGetObjectState())).read();
 
-    /**
-     * Management of user events
-     **/
-    public void actionPerformed(ActionEvent e) {
-        try {
-            // get the value to be written from the buffer
-            String s = irc.data.getText();
+                    // unlock the object
+                    irc.sentence.jvnUnLock();
 
-            // lock the object in write mode
-            irc.sentence.jvnLockWrite();
+                    // display the read value
+                    irc.data.setText(s);
+                    irc.text.append(s + "\n");
 
-            // invoke the method
-            ((Sentence) (irc.sentence.jvnGetObjectState())).write(s);
+                    break;
+                case "enterSalle":
+                    // look up the IRC object in the JVN server
+                    // if not found, create it, and register it in the JVN server
+                    irc.sentence = irc.js.jvnLookupObject(irc.salle.getText());
 
-            // unlock the object
-            irc.sentence.jvnUnLock();
+                    if (irc.sentence == null) {
+                        irc.sentence = irc.js.jvnCreateObject((Serializable) new Sentence());
+                        // after creation, I have a write lock on the object
+                        irc.sentence.jvnUnLock();
+                        irc.js.jvnRegisterObject("IRC", irc.sentence);
+                        irc.salle.setEditable(false);
+                        irc.connectSalle.setLabel("Terminate...");
+
+                    }
+
+                    break;
+                case "exitSalle":
+                    irc.sentence=null;
+                    irc.text.setText("");
+                    irc.data.setText("");
+                    break;
+            }
         } catch (JvnException je) {
             System.out.println("IRC problem  : " + je.getMessage());
+        }
+
+
+    }
+
+    class JvnMouseClick extends MouseAdapter {
+        Irc irc;
+
+        public JvnMouseClick(Irc irc) {
+            this.irc = irc;
+        }
+
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            super.mouseClicked(e);
+            if (e.getClickCount() == 2) {
+                irc.salle.setEditable(true);
+                irc.connectSalle.setLabel("Connect to..");
+                irc.connectSalle.setEnabled(true);
+            }
         }
     }
 }
