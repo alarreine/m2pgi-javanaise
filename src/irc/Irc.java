@@ -9,6 +9,7 @@ package irc;
 
 import jvn.JvnObject;
 import jvn.exception.JvnException;
+import jvn.impl.JvnInterceptorImpl;
 import jvn.impl.JvnServerImpl;
 
 import javax.swing.*;
@@ -21,9 +22,10 @@ import java.io.Serializable;
 
 
 public class Irc {
-    public JTextArea text;
-    public JTextField data;
-    public JTextField salle;
+    JTextArea text;
+    JTextField data;
+    JTextField salle;
+    JTextField objectStatus;
 
     JFrame frame;
     JPanel buttonPanel;
@@ -130,6 +132,11 @@ public class Irc {
         unlock_button.setEnabled(false);
         buttonPanel.add(unlock_button);
 
+        objectStatus = new JTextField("status");
+        objectStatus.setPreferredSize(new Dimension(130, 20));
+        objectStatus.setEnabled(false);
+        buttonPanel.add(objectStatus);
+
         //frame.setSize(545,201);
         frame.add(sallePanel, BorderLayout.NORTH);
         frame.add(buttonPanel, BorderLayout.SOUTH);
@@ -211,6 +218,8 @@ class ButtonAction implements ActionListener {
                     irc.sentence.jvnUnLock();
                     break;
             }
+
+            irc.objectStatus.setText(((JvnInterceptorImpl)irc.sentence).getStatus());
 
         } catch (JvnException je) {
             System.out.println("IRC problem  : " + je.getMessage());

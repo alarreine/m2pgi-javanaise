@@ -32,6 +32,8 @@ public class JvnInterceptorImpl implements JvnObject {
             boolean serverCall = false;
             synchronized (this) {
                 if (this.state == JvnState.RC) {
+                    serverCall = true;
+                    //TODO VOIR CETTE PARTIE, J'ai ajoute pour obtenir la derniere version de l'object
                     this.state = JvnState.R;
                 } else if (this.state == JvnState.R) {
 
@@ -64,7 +66,7 @@ public class JvnInterceptorImpl implements JvnObject {
             }
             if (serverCall) {
                 Serializable o = JvnServerImpl.jvnGetServer().jvnLockWrite(id);
-                this.state = R;
+                this.state = W;
                 synchronized (this) {
                     this.managedObject = o;
                 }
@@ -152,7 +154,7 @@ public class JvnInterceptorImpl implements JvnObject {
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
-
+//TODO VOIR CETTE PARTIE DIAPO 7 et 8
                         state = RC;
                     }
                     break;
@@ -161,6 +163,12 @@ public class JvnInterceptorImpl implements JvnObject {
             }
 
             return managedObject;
+        }
+    }
+
+    public String getStatus(){
+        synchronized (this.state){
+            return this.state.getValue();
         }
     }
 
