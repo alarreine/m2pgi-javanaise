@@ -221,7 +221,7 @@ public class JvnCoordImpl
                             break;
                         case R:
                             for (JvnRemoteServer s : jvnCacheObject.getListClient()) {
-                                s.jvnInvalidateReader(joi);
+                                if(!s.equals(js)) s.jvnInvalidateReader(joi);
                             }
                             jvnCacheObject.setState(JvnState.W);
                             logger.info("IDObject: " + jvnCacheObject.getObject().jvnGetObjectId() + " State After: " + JvnState.R.getValue() + "State before:" + JvnState.W.getValue());

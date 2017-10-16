@@ -26,8 +26,6 @@ public class JvnInterceptorImpl implements JvnObject {
     public void jvnLockRead() throws JvnException {
 
         // Accès séquentiel à l'objet
-        synchronized (this.state) {
-
             boolean serverCall = false;
             synchronized (this) {
                 if (this.state == JvnState.RC) {
@@ -47,13 +45,11 @@ public class JvnInterceptorImpl implements JvnObject {
                     this.managedObject = o;
                 }
             }
-        }
     }
 
     @Override
     public void jvnLockWrite() throws JvnException {
         // Accès séquentiel à l'objet
-        synchronized (this.state) {
 
             boolean serverCall = false;
             synchronized (this) {
@@ -70,7 +66,7 @@ public class JvnInterceptorImpl implements JvnObject {
                     this.managedObject = o;
                 }
             }
-        }
+
     }
 
     @Override
