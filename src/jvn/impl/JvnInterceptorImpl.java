@@ -32,7 +32,7 @@ public class JvnInterceptorImpl implements JvnObject {
             boolean serverCall = false;
             synchronized (this) {
                 if (this.state == JvnState.RC) {
-                    serverCall = true;
+                    //serverCall = true;
                     //TODO VOIR CETTE PARTIE, J'ai ajoute pour obtenir la derniere version de l'object
                     this.state = JvnState.R;
                 } else if (this.state == JvnState.R) {
