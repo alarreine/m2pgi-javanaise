@@ -9,6 +9,7 @@
 * ConcurrentHashMap
 * Nouveau layout fenêtre graphique
 * Client multithread pour tester en mode Burst. `IrcBurst` 
+* Integration Continue avec Travis
 
 ## Ce qui marche
 * LockRead
@@ -19,3 +20,7 @@
 
 ## Obs
 * Logique d'invalidation. Lorqu'on a un client A qui a un object en RC et si le client B fait une modification sur l'object. Suit le client A fait un read, Il ne reçoit pas la MAJ de l'object modifié pour Client B  
+
+# AUTHOR
+Gerardo LARREINEGABE
+Mickael ZODEHOUGAN
