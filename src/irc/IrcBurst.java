@@ -11,7 +11,7 @@ import java.util.concurrent.Executors;
 public class IrcBurst {
 
     public static void main(String argv[]) {
-        int threadN=4;
+        int threadN=10;
         ExecutorService executor = Executors.newFixedThreadPool(threadN);
         try {
             for (int i = 0; i < threadN; i++) {
