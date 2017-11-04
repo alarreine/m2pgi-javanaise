@@ -8,18 +8,26 @@
 
 package irc;
 
-public class Sentence implements java.io.Serializable {
+import jvn.inter.ISentence;
+
+public class Sentence implements java.io.Serializable, ISentence{
 	String 		data;
   
 	public Sentence() {
 		data = new String("");
 	}
-	
+    @Override
 	public void write(String text) {
 		data = text;
 	}
+    @Override
 	public String read() {
 		return data;	
 	}
-	
+
+    @Override
+    public void unlock() {
+        //TODO;
+    }
+
 }

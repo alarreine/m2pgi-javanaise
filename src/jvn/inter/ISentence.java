@@ -10,5 +10,8 @@ public interface ISentence {
     @JvnProxyAction(jvnProxyActionType = JvnActionType.READ)
     public String read();
 
+    @JvnProxyAction(jvnProxyActionType = JvnActionType.UNLOCK)
+    public void unlock();
+
 }
 

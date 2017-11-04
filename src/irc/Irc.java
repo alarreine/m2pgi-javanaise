@@ -7,10 +7,12 @@
 
 package irc;
 
+import jvn.JvnDynamicProxy;
 import jvn.JvnObject;
 import jvn.exception.JvnException;
 import jvn.impl.JvnInterceptorImpl;
 import jvn.impl.JvnServerImpl;
+import jvn.inter.ISentence;
 
 import javax.swing.*;
 import java.awt.*;
@@ -19,6 +21,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.Serializable;
+import java.lang.reflect.Proxy;
+import java.util.logging.Logger;
 
 
 public class Irc {
@@ -36,9 +40,11 @@ public class Irc {
     Button read_button;
     Button unlock_button;
 
-    JvnObject sentence;
+    ISentence sentence;
 
     JvnServerImpl js;
+
+    public final static Logger logger = Logger.getLogger("irc");
 
 
     /**
@@ -162,19 +168,19 @@ class ButtonAction implements ActionListener {
                 case "writeListener":
 
                     // lock the object in write mode
-                    irc.sentence.jvnLockWrite();
+                    //irc.sentence.jvnLockWrite();
 
                     // invoke the method
-                    ((Sentence) (irc.sentence.jvnGetObjectState())).write(irc.data.getText());
+                    irc.sentence.write(irc.data.getText());
 
 
                     break;
                 case "readListener":
                     // lock the object in read mode
-                    irc.sentence.jvnLockRead();
+                    //irc.sentence.read();
 
                     // invoke the method
-                    String s = ((Sentence) (irc.sentence.jvnGetObjectState())).read();
+                    String s = irc.sentence.read();
 
                     // display the read value
                     irc.data.setText(s);
@@ -184,15 +190,12 @@ class ButtonAction implements ActionListener {
                 case "enterSalle":
                     // look up the IRC object in the JVN server
                     // if not found, create it, and register it in the JVN server
-                    JvnObject jo = irc.js.jvnLookupObject(irc.salle.getText());
 
-                    if (jo == null) {
-                        jo = irc.js.jvnCreateObject((Serializable) new Sentence());
-                        // after creation, I have a write lock on the object
-                        jo.jvnUnLock();
-                        irc.js.jvnRegisterObject(irc.salle.getText(), jo);
-                    }
-                    irc.sentence=jo;
+//                    irc.sentence= (ISentence) Proxy.newProxyInstance(this.getClass().getClassLoader(),
+//                            this.getClass().getInterfaces(),
+//                            new JvnDynamicProxy(jo));
+                    irc.sentence = (ISentence) JvnDynamicProxy.getProxyInstance(irc.js, irc.salle.getText(),new Sentence());
+
                     irc.salle.setEnabled(false);
                     irc.connectSalle.setEnabled(false);
                     irc.disconnectSalle.setEnabled(true);
@@ -215,11 +218,11 @@ class ButtonAction implements ActionListener {
                     irc.unlock_button.setEnabled(false);
                     break;
                 case "unlockListener":
-                    irc.sentence.jvnUnLock();
+                    irc.sentence.unlock();
                     break;
             }
 
-            irc.objectStatus.setText(((JvnInterceptorImpl)irc.sentence).getStatus());
+            //irc.objectStatus.setText(((JvnInterceptorImpl)irc.sentence).getStatus());
 
         } catch (JvnException je) {
             System.out.println("IRC problem  : " + je.getMessage());
