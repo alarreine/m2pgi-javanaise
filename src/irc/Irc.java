@@ -188,12 +188,7 @@ class ButtonAction implements ActionListener {
 
                     break;
                 case "enterSalle":
-                    // look up the IRC object in the JVN server
-                    // if not found, create it, and register it in the JVN server
 
-//                    irc.sentence= (ISentence) Proxy.newProxyInstance(this.getClass().getClassLoader(),
-//                            this.getClass().getInterfaces(),
-//                            new JvnDynamicProxy(jo));
                     irc.sentence = (ISentence) JvnDynamicProxy.getProxyInstance(irc.js, irc.salle.getText(),new Sentence());
 
                     irc.salle.setEnabled(false);

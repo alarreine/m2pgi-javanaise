@@ -1,7 +1,9 @@
 package irc;
 
+import jvn.JvnDynamicProxy;
 import jvn.JvnObject;
 import jvn.impl.JvnServerImpl;
+import jvn.inter.ISentence;
 
 import java.io.Serializable;
 import java.util.Random;
@@ -35,7 +37,7 @@ public class IrcBurst {
 
 class JvnThread extends Thread {
 
-    JvnObject sentence;
+    ISentence sentence;
     JvnServerImpl js;
     int tmp;
     Random random;
@@ -55,7 +57,7 @@ class JvnThread extends Thread {
                 js.jvnRegisterObject("IRC", jo);
             }
 
-            sentence = jo;
+            sentence = (ISentence) JvnDynamicProxy.getProxyInstance(js, "IRC",new Sentence());
 
         } catch (Exception e) {
 
@@ -74,20 +76,18 @@ class JvnThread extends Thread {
                 sleep(i>0?i:i*-1);
 
                 tmp++;
-                sentence.jvnLockWrite();
-                ((Sentence) (sentence.jvnGetObjectState())).write(String.valueOf(tmp));
-                sentence.jvnUnLock();
 
-                System.out.println("IRC Sentences Write : " + ((Sentence) (sentence.jvnGetObjectState())).read());
+                sentence.write(String.valueOf(tmp));
+                sentence.unlock();
 
-                sentence.jvnLockRead();
+                sentence.read();
 
                 // invoke the method
-                tmp = Integer.valueOf(((Sentence) (sentence.jvnGetObjectState())).read());
+                tmp = Integer.valueOf(sentence.read());
 
-                sentence.jvnUnLock();
+                sentence.unlock();
 
-                System.out.println("IRC Sentences Got : " + ((Sentence) (sentence.jvnGetObjectState())).read());
+                System.out.println("IRC Sentences Got : " + tmp);
 
             }
 
