@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
-public class JvnCacheObject {
+public class JvnCacheObject implements Serializable{
 
     private JvnObject object;
     private List<JvnRemoteServer> listClient;
