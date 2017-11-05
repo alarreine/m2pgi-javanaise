@@ -12,6 +12,7 @@ import jvn.*;
 import jvn.exception.JvnException;
 
 import java.io.Serializable;
+import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
@@ -171,7 +172,7 @@ public class JvnCoordImpl
                             break;
                         case W:
                             JvnRemoteServer client = jvnCacheObject.getListClient().get(0);
-                            jvnCacheObject.setLatesContent(client.jvnInvalidateWriterForReader(joi));
+                            jvnCacheObject.setLatesContent(client!=null && !client.equals(js)?client.jvnInvalidateWriterForReader(joi):jvnCacheObject.getObject());
                             if (!client.equals(js)) {
                                 jvnCacheObject.getListClient().add(js);
                             }
@@ -179,7 +180,7 @@ public class JvnCoordImpl
                             break;
                     }
                 } catch (Exception e) {
-                    logger.severe("Error in READ LOCK");
+                    logger.severe("Error in READ LOCK" + e.getMessage());
                 }
 
                 jvnCacheObject.setState(JvnState.R);
@@ -228,7 +229,8 @@ public class JvnCoordImpl
                             //TODO We have to create the thread to wait the reponse of each client in te list. In V2
                             break;
                         case W:
-                            jvnCacheObject.setLatesContent(jvnCacheObject.getListClient().get(0).jvnInvalidateWriter(joi));
+                            JvnRemoteServer client = jvnCacheObject.getListClient().get(0);
+                            jvnCacheObject.setLatesContent(client!=null && !client.equals(js)?client.jvnInvalidateWriter(joi):jvnCacheObject.getObject());
                             logger.info("IDObject: " + jvnCacheObject.getObject().jvnGetObjectId() + " State After: " + JvnState.W.getValue() + "State before:" + JvnState.W.getValue());
                             break;
                     }
@@ -290,6 +292,10 @@ public class JvnCoordImpl
 
         }
 
+    }
+
+    protected JvnCoordImpl(int port) throws RemoteException {
+        super(port);
     }
 }
 

@@ -1,6 +1,7 @@
 package jvn;
 
 import jvn.exception.JvnException;
+import jvn.impl.JvnInterceptorImpl;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -78,7 +79,7 @@ public class JvnCacheObject implements Serializable{
     }
 
     public void putLastContentAsCurrent() throws JvnException {
-        setLatesContent(getObject().jvnInvalidateWriter());
+        setLatesContent(object);
     }
 
     @Override
