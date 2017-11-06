@@ -216,8 +216,8 @@ class ButtonAction implements ActionListener {
 
             //irc.objectStatus.setText(((JvnInterceptorImpl)irc.sentence).getStatus());
 
-        } catch (JvnException je) {
-            System.out.println("IRC problem  : " + je.getMessage());
+        }catch (IllegalArgumentException a){
+            irc.sentence = (ISentence) JvnDynamicProxy.getProxyInstance(irc.js, irc.salle.getText(),new Sentence());
         }
 
 

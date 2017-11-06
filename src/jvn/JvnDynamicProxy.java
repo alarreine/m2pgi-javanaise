@@ -40,21 +40,32 @@ public class JvnDynamicProxy implements InvocationHandler {
 
                 result = method.invoke(jo.jvnGetObjectState(), args);
 
-            } catch (Exception e) {
+            }catch (IllegalArgumentException a){
+                throw new IllegalArgumentException();
+
+            }
+            catch (Exception e) {
                 Irc.logger.severe( e.getMessage());
             }
         }
         return result;
     }
 
-    public static Object getProxyInstance(JvnLocalServer js, String name, Object obj) throws JvnException {
-        JvnObject o = js.jvnLookupObject(name);
+    public static Object getProxyInstance(JvnLocalServer js, String name, Object obj)  {
+
+        JvnObject o = null;
+        try {
+            o = js.jvnLookupObject(name);
+
 
         if (o == null) {
             o = js.jvnCreateObject((Serializable) obj);
             // after creation, I have a write lock on the object
             o.jvnUnLock();
             js.jvnRegisterObject(name, o);
+        }
+        } catch (JvnException e) {
+            e.printStackTrace();
         }
         return Proxy.newProxyInstance(
                 obj.getClass().getClassLoader(),

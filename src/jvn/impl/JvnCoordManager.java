@@ -94,7 +94,8 @@ public class JvnCoordManager implements JvnRemoteCoord {
                 result = jvnCoord.jvnLockRead(joi, js);
             } catch (ConnectException e) {
                 online = false;
-                result = map.get(joi);
+//                Serializable o = map.get(joi);
+//                result = o;
             }
 
         } else {
@@ -102,7 +103,8 @@ public class JvnCoordManager implements JvnRemoteCoord {
             if (online) {
                 result = jvnCoord.jvnLockRead(joi, js);
             } else {
-                result = map.get(joi);
+//                Serializable o = map.get(joi).jvnGetObjectState();
+//                result = o;
             }
 
 
@@ -119,14 +121,16 @@ public class JvnCoordManager implements JvnRemoteCoord {
                 result = jvnCoord.jvnLockWrite(joi, js);
             } catch (ConnectException e) {
                 online = false;
-                result = map.get(joi);
+//                Serializable o = map.get(joi).jvnGetObjectState();
+//                result = o;
             }
         } else {
             retryConnection(joi);
             if (online) {
                 result = jvnCoord.jvnLockRead(joi, js);
             } else {
-                result = map.get(joi);
+//                Serializable o = map.get(joi).jvnGetObjectState();
+//                result = o;
             }
 
 
@@ -149,15 +153,16 @@ public class JvnCoordManager implements JvnRemoteCoord {
         try {
             jvnCoord = (JvnRemoteCoord) Naming.lookup("Coordinator");
 
-            JvnInterceptorImpl o = (JvnInterceptorImpl) map.get(joi);
+            Serializable o =  map.get(joi).jvnGetObjectState();
 
             JvnObject jvnO = jvnCoord.jvnLookupObject("IRC",rs);
-
+            int id=0;
             if(jvnO==null){
-                int id = jvnCoord.jvnGetObjectId();
-
-                o.setId(id);
-                jvnCoord.jvnRegisterObject("IRC", o, rs);
+                id = jvnCoord.jvnGetObjectId();
+                JvnObject o1 = new JvnInterceptorImpl(id, o);
+                jvnCoord.jvnRegisterObject("IRC", o1, rs);
+            }else{
+                id = ((JvnInterceptorImpl)jvnO).getId();
             }
             online = true;
         } catch (RemoteException e) {

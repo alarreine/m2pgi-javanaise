@@ -39,9 +39,12 @@ public class JvnInterceptorImpl implements JvnObject {
             if (serverCall) {
                 Serializable o = JvnServerImpl.jvnGetServer().jvnLockRead(id);
                 this.state = JvnState.R;
-                synchronized (this) {
-                    this.managedObject = o;
+                if(o!=null){
+                    synchronized (this) {
+                        this.managedObject = o;
+                    }
                 }
+
             }
     }
 
@@ -60,9 +63,12 @@ public class JvnInterceptorImpl implements JvnObject {
             if (serverCall) {
                 Serializable o = JvnServerImpl.jvnGetServer().jvnLockWrite(id);
                 this.state = JvnState.W;
-                synchronized (this) {
-                    this.managedObject = o;
+                if(o!=null){
+                    synchronized (this) {
+                        this.managedObject = o;
+                    }
                 }
+
             }
 
     }
@@ -172,5 +178,6 @@ public class JvnInterceptorImpl implements JvnObject {
     public void setId(int id) {
         this.id = id;
     }
+
 
 }
