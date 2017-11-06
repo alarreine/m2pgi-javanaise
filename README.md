@@ -1,9 +1,19 @@
-# JAVANAISE 
+# JAVANAISE_V2
 ## Ce qui a été fait
-* Implementation de la classe `JvnCoordImpl` 
-* Implementation de la classe `JvnInterceptorImpl`
-* Implementation de la classe `JvnServerImpl`
-* Implementation de la classe `JvnState`: Pour gérer les états
+### Implementation du  Dynamic Proxy, classes:
+* Annotation: `JvnProxyAction.java`
+* DynamicProxy: `JvnDynamicProxy.java`
+* InterfaceProxy: `ISentence.java`
+
+### Extension 1 : Gestion de la saturation d’un cache client: 
+Le client utilise [LinkedHashMap](https://docs.oracle.com/javase/8/docs/api/java/util/LinkedHashMap.html) pour gérer le 
+nombre d'objects dans le cache. 
+On s'ensert du méthod [removeEldestEntry](https://docs.oracle.com/javase/8/docs/api/java/util/LinkedHashMap.html#removeEldestEntry-java.util.Map.Entry-) 
+pour effacer le premier object ajouté dans le cache.
+
+### Extension 3 : Traitement des pannes du coordinateur (branche feat/panne_client)
+On a implmementé un `JvnCoordManager` qui gère les requêtes. Quand il détecte une ConnectException il se met en 
+mode offline, puis il utilise le cache local. Dans la prochaine requête, il va essayer de se reconnecter. 
 
 ## Complement
 * ConcurrentHashMap
@@ -12,15 +22,11 @@
 * Integration Continue avec Travis
 
 ## Ce qui marche
-* LockRead
-* LockWrite
-* Les méthods d'invalidation
+* DynamicProxy
 
 ## Ce qui ne marche pas
-
-## Obs
-* Logique d'invalidation. Lorqu'on a un client A qui a un object en RC et si le client B fait une modification sur l'object. Suit le client A fait un read, Il ne reçoit pas la MAJ de l'object modifié pour Client B  
-
+Il y a un erreur de Unmarshal lorsqu'après une reprise sur panne le client synchronise son objet avec le coordinateur.
+  
 # AUTHOR
 Gerardo LARREINEGABE
-Mickael ZODEHOUGAN
+Michael ZODEHOUGAN
