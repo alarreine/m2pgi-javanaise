@@ -29,7 +29,6 @@ public class JvnInterceptorImpl implements JvnObject {
             boolean serverCall = false;
             synchronized (this) {
                 if (this.state == JvnState.RC) {
-                    //serverCall = true;
                     //TODO VOIR CETTE PARTIE, J'ai ajoute pour obtenir la derniere version de l'object
                     this.state = JvnState.R;
                 } else if (this.state == JvnState.R) {
@@ -137,7 +136,7 @@ public class JvnInterceptorImpl implements JvnObject {
                     state = JvnState.R;
                     break;
                 case WC:
-                    state = JvnState.RC;
+                    state = JvnState.NL;
                     break;
                 case W:
                     while (state == JvnState.W) {

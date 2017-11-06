@@ -17,13 +17,14 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.logging.Logger;
 
 public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer, JvnRemoteServer {
 
     // A JVN server is managed as a singleton
     private static JvnServerImpl js = null;
-    private HashMap<Integer, JvnObject> jvnObjects = null;
+    private LinkedHashMap<Integer, JvnObject> jvnObjects;
 
     private JvnRemoteCoord jvnCoordinator = null;
 
@@ -36,7 +37,7 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
      **/
     private JvnServerImpl() throws Exception {
         super();
-        jvnObjects = new HashMap<Integer, JvnObject>();
+        jvnObjects = new LinkedHashMap(10);
         try {
             // call the coordinator
             jvnCoordinator = (JvnRemoteCoord) Naming.lookup("Coordinator");
