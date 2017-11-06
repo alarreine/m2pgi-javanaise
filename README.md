@@ -1,26 +1,36 @@
-# JAVANAISE 
-## Ce qui a été fait
-* Implementation de la classe `JvnCoordImpl` 
-* Implementation de la classe `JvnInterceptorImpl`
-* Implementation de la classe `JvnServerImpl`
-* Implementation de la classe `JvnState`: Pour gérer les états
+# JAVANAISE
+Projet d'une Cache Distribuée
+Version [V1.0](https://github.com/alarreine/m2pgi-javanaise/releases/tag/1.0)
+Version [V2.0](https://github.com/alarreine/m2pgi-javanaise/releases/tag/v2.0)
 
-## Complement
-* ConcurrentHashMap
-* Nouveau layout fenêtre graphique
-* Client multithread pour tester en mode Burst. `IrcBurst` 
-* Integration Continue avec Travis
+[Rapport V1](https://alarreine.github.io/m2pgi-javanaise/Javanaise_v1)
+[Rapport V2](https://alarreine.github.io/m2pgi-javanaise/Javanaise_v2)
 
-## Ce qui marche
-* LockRead
-* LockWrite
-* Les méthods d'invalidation
+## Compiler le projet
+```sh
+mkdir build
+javac -d build/ $(find ./src -name "*.java")
+```
 
-## Ce qui ne marche pas
+## Comment lancer le projet
+Il faut suivre dans cet ordre
+### Lancement du registre RMI
+```sh
+cd build
+rmiregistry -J-Djava.rmi.server.useCodebaseOnly=false &
+```
+### Lancement du Serveur
+```sh
+cd build
+java jvn.coordinator.JvnCoordImpl &
+```
 
-## Obs
-* Logique d'invalidation. Lorqu'on a un client A qui a un object en RC et si le client B fait une modification sur l'object. Suit le client A fait un read, Il ne reçoit pas la MAJ de l'object modifié pour Client B  
-
+### Lancement du client IRC
+```sh
+cd build
+java irc.Irc &
+```
+  
 # AUTHOR
 Gerardo LARREINEGABE
-Mickael ZODEHOUGAN
+Michael ZODEHOUGAN
