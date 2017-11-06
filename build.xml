@@ -24,7 +24,7 @@
 		- dist: Where do you want to generate the distribution of the project ?
 	======================================================== -->
 	<property file="build.properties"/>
-	
+
 
 	<!-- ======== PROPERTY DEFINITION ==========================================-->
 	<!-- src contains source files	of Javanaise								-->
@@ -34,21 +34,21 @@
 	<!-- =======================================================================-->
 	<property name="src" 			 	value="${basedir}/src"/>
 	<property name="external" 			value="${basedir}/external"/>
-	<property name="dist.lib" 			value="${dist}/lib"/>   
+	<property name="dist.lib" 			value="${dist}/lib"/>
 	<property name="dist.jdoc" 			value="${dist}/jdoc"/>
-	
+
 
 	<!--====================================-->
 	<!--==========     classpath  ==========-->
 	<!--====================================-->
-  <path id="classpath">
-  	<pathelement location="${build}"/>
-    <fileset dir="${basedir}">
-      <include name="externals/**/*.jar"/>
-    </fileset>
-  </path>
+	<path id="classpath">
+		<pathelement location="${build}"/>
+		<fileset dir="${basedir}">
+			<include name="externals/**/*.jar"/>
+		</fileset>
+	</path>
 
-    	
+
 
 	<!--====================================-->
 	<!--==========     HELP       ==========-->
@@ -61,7 +61,7 @@
 		<echo message="  clean: removes all produced files."/>
 		<echo message="  dist: creates a distribution in ${dist.lib}"/>
 		<echo message="  genjvn: generates jvn interposition classes"/>
-		
+
 		<echo message=""/>
 	</target>
 
@@ -76,40 +76,41 @@
 			<classpath refid="classpath"/>
 			<include name="**/*.java"/>
 		</javac>
-		<rmic classname="jvn.JvnServerImpl" base="${build}"/>
-		<rmic classname="jvn.JvnCoordImpl" base="${build}"/>
+		<rmic classname="jvn.impl.JvnServerImpl" base="${build}"/>
+		<rmic classname="jvn.impl.JvnCoordImpl" base="${build}"/>
 		<copy toDir="${build}" preservelastmodified="yes">
 			<fileset dir="${src}">
 				<include name="**/*.vm"/>
 			</fileset>
 		</copy>
+		<copy file="java.policy" todir="${build}"/>
 	</target>
 
 	<!--===================================-->
 	<!--==========    DIST    ==========-->
 	<!--===================================-->
 	<target name="dist" depends="compile">
-	  <mkdir dir="${dist}"/>
-   	  <mkdir dir="${dist.lib}"/>
-      <jar destfile="${dist.lib}/javanaise.jar" >
-        <fileset dir="${build}" />
-      </jar>
-      <copy todir="${dist.lib}" >
-        <fileset dir="${external}">
-          <include name="**/*.jar"/>
-        </fileset>
-      </copy> 
+		<mkdir dir="${dist}"/>
+		<mkdir dir="${dist.lib}"/>
+		<jar destfile="${dist.lib}/javanaise.jar" >
+			<fileset dir="${build}" />
+		</jar>
+		<copy todir="${dist.lib}" >
+			<fileset dir="${external}">
+				<include name="**/*.jar"/>
+			</fileset>
+		</copy>
 	</target>
-	
-	
-	<!-- ===================================--> 
-	<!-- ==========    GenJvn    ==========--> 
-	<!-- ===================================--> 
+
+
+	<!-- ===================================-->
+	<!-- ==========    GenJvn    ==========-->
+	<!-- ===================================-->
 	<target name="genjvn" depends="compile">
-	<java classname="compilator.GenJvn">
-	  <arg value="${genjvnparam}" /> 
-	  <classpath refid="classpath" /> 
-	</java>
+		<java classname="compilator.GenJvn">
+			<arg value="${genjvnparam}" />
+			<classpath refid="classpath" />
+		</java>
 	</target>
 
 	<!--===================================-->
@@ -120,6 +121,6 @@
 		<delete dir="${build}"/>
 		<delete dir="${dist}"/>
 	</target>
-	
+
 
 </project>
