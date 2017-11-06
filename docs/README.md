@@ -1,31 +1,35 @@
-# JAVANAISE_V2
-## Ce qui a été fait
-### Implementation du  Dynamic Proxy, classes:
-* Annotation: `JvnProxyAction.java`
-* DynamicProxy: `JvnDynamicProxy.java`
-* InterfaceProxy: `ISentence.java`
+# JAVANAISE
+Projet d'une Cache Distribuée
+Version [V1.0](https://github.com/alarreine/m2pgi-javanaise/releases/tag/1.0)
+Version [V2.0](https://github.com/alarreine/m2pgi-javanaise/releases/tag/v2.0)
 
-### Extension 1 : Gestion de la saturation d’un cache client: 
-Le client utilise [LinkedHashMap](https://docs.oracle.com/javase/8/docs/api/java/util/LinkedHashMap.html) pour gérer le 
-nombre d'objects dans le cache. 
-On s'ensert du méthod [removeEldestEntry](https://docs.oracle.com/javase/8/docs/api/java/util/LinkedHashMap.html#removeEldestEntry-java.util.Map.Entry-) 
-pour effacer le premier object ajouté dans le cache.
+[Rapport V1](https://alarreine.github.io/m2pgi-javanaise/Javanaise_v1)
+[Rapport V2](https://alarreine.github.io/m2pgi-javanaise/Javanaise_v2)
 
-### Extension 3 : Traitement des pannes du coordinateur (branche feat/panne_client)
-On a implmementé un `JvnCoordManager` qui gère les requêtes. Quand il détecte une ConnectException il se met en 
-mode offline, puis il utilise le cache local. Dans la prochaine requête, il va essayer de se reconnecter. 
+## Compiler le projet
+```sh
+mkdir build
+javac -d build/ $(find ./src -name "*.java")
+```
 
-## Complement
-* ConcurrentHashMap
-* Nouveau layout fenêtre graphique
-* Client multithread pour tester en mode Burst. `IrcBurst` 
-* Integration Continue avec Travis
+## Comment lancer le projet
+Il faut suivre dans cet ordre
+### Lancement du registre RMI
+```sh
+cd build
+rmiregistry -J-Djava.rmi.server.useCodebaseOnly=false &
+```
+### Lancement du Serveur
+```sh
+cd build
+java jvn.coordinator.JvnCoordImpl &
+```
 
-## Ce qui marche
-* DynamicProxy
-
-## Ce qui ne marche pas
-Il y a un erreur de Unmarshal lorsqu'après une reprise sur panne le client synchronise son objet avec le coordinateur.
+### Lancement du client IRC
+```sh
+cd build
+java irc.Irc &
+```
   
 # AUTHOR
 Gerardo LARREINEGABE
