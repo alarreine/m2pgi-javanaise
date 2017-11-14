@@ -14,11 +14,6 @@ javac -d build/ $(find ./src -name "*.java")
 
 ## Comment lancer le projet
 Il faut suivre dans cet ordre
-### Lancement du registre RMI
-```sh
-cd build
-rmiregistry -J-Djava.rmi.server.useCodebaseOnly=false &
-```
 ### Lancement du Serveur
 ```sh
 cd build
